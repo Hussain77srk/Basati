@@ -10,6 +10,9 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <!-- مكتبة SheetJS لمعالجة ملفات Excel -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- إضافة مكتبة jsPDF لطباعة التقارير -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -17,7 +20,31 @@
                 extend: {
                     colors: {
                         primary: '#5D5CDE',
-                    }
+                    },
+                    animation: {
+                        'pulse-light': 'pulse-light 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'fade-in': 'fade-in 0.3s ease-in-out',
+                        'slide-down': 'slide-down 0.3s ease-in-out',
+                        'slide-up': 'slide-up 0.3s ease-in-out',
+                    },
+                    keyframes: {
+                        'pulse-light': {
+                            '0%, 100%': { opacity: 1 },
+                            '50%': { opacity: 0.7 },
+                        },
+                        'fade-in': {
+                            '0%': { opacity: 0 },
+                            '100%': { opacity: 1 },
+                        },
+                        'slide-down': {
+                            '0%': { transform: 'translateY(-10px)', opacity: 0 },
+                            '100%': { transform: 'translateY(0)', opacity: 1 },
+                        },
+                        'slide-up': {
+                            '0%': { transform: 'translateY(10px)', opacity: 0 },
+                            '100%': { transform: 'translateY(0)', opacity: 1 },
+                        },
+                    },
                 }
             }
         }
@@ -362,6 +389,324 @@
         .dark .suggestion-item:hover {
             background-color: #4b5563;
         }
+        
+        /* الإحصائيات الموجزة */
+        .stats-card {
+            transition: all 0.3s ease;
+            border-radius: 0.5rem;
+            border-right: 4px solid #5D5CDE;
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .dark .stats-card:hover {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .stats-card .stats-value {
+            font-size: 1.875rem;
+            font-weight: 700;
+            line-height: 1.2;
+            display: block;
+            color: #5D5CDE;
+        }
+        
+        .dark .stats-card .stats-value {
+            color: #B4B3FF;
+        }
+        
+        .stats-card .stats-label {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        
+        .dark .stats-card .stats-label {
+            color: #9ca3af;
+        }
+        
+        /* إضافة تأثير للمجموعات الإحصائية */
+        .stats-icon {
+            display: inline-flex;
+            width: 48px;
+            height: 48px;
+            align-items: center;
+            justify-content: center;
+            border-radius: 9999px;
+            background-color: rgba(93, 92, 222, 0.1);
+            margin-bottom: 0.5rem;
+        }
+        
+        .dark .stats-icon {
+            background-color: rgba(93, 92, 222, 0.2);
+        }
+
+        /* تنسيق لمودال الطباعة */
+        .print-modal {
+            transition: all 0.3s ease-in-out;
+        }
+        
+        .print-modal.show {
+            display: flex;
+            animation: fade-in 0.3s ease-in-out;
+        }
+        
+        /* تحسين مظهر اقتراحات البحث */
+        .suggestion-item.highlight {
+            background-color: rgba(93, 92, 222, 0.1);
+        }
+        
+        .dark .suggestion-item.highlight {
+            background-color: rgba(93, 92, 222, 0.2);
+        }
+        
+        /* أسلوب العرض الشبكي للطلاب */
+        .grid-view-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+        
+        .grid-view-card:hover {
+            border-color: #5D5CDE;
+            transform: translateY(-2px);
+        }
+        
+        .grid-view-card.selected {
+            border-color: #5D5CDE;
+            background-color: rgba(93, 92, 222, 0.05);
+        }
+        
+        .dark .grid-view-card.selected {
+            background-color: rgba(93, 92, 222, 0.1);
+        }
+        
+        /* تحسين مظهر مؤشر التحميل النشط */
+        .searching-indicator {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            background-color: rgba(93, 92, 222, 0.1);
+            color: #5D5CDE;
+            margin-right: 6px;
+            animation: pulse-light 2s infinite;
+        }
+        
+        .dark .searching-indicator {
+            background-color: rgba(93, 92, 222, 0.2);
+        }
+        
+        /* تحسين مظهر شريط العنوان والأقسام */
+        .section-divider {
+            height: 2px;
+            width: 50px;
+            background-color: #5D5CDE;
+            margin: 5px 0 15px;
+        }
+        
+        /* تحسين مظهر أزرار الإجراءات */
+        .action-btn-group .action-btn {
+            transition: all 0.2s ease;
+            opacity: 0.7;
+        }
+        
+        .action-btn-group:hover .action-btn {
+            opacity: 1;
+        }
+        
+        /* تحسين مظهر أزرار الإحصائيات */
+        .stats-tabs {
+            display: flex;
+            border-bottom: 1px solid #e5e7eb;
+            margin-bottom: 1rem;
+        }
+        
+        .dark .stats-tabs {
+            border-bottom-color: #4b5563;
+        }
+        
+        .stats-tab {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+        
+        .stats-tab.active {
+            border-bottom-color: #5D5CDE;
+            color: #5D5CDE;
+            font-weight: 500;
+        }
+        
+        .search-highlight-animation {
+            animation: pulse-light 2s infinite;
+        }
+        
+        /* تنسيق تصفح القائمة عبر الأحرف */
+        .alphabet-nav {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 4px;
+            margin-bottom: 1rem;
+        }
+        
+        .alphabet-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.875rem;
+        }
+        
+        .alphabet-item:hover, .alphabet-item.active {
+            background-color: rgba(93, 92, 222, 0.1);
+            color: #5D5CDE;
+        }
+        
+        .dark .alphabet-item:hover, .dark .alphabet-item.active {
+            background-color: rgba(93, 92, 222, 0.2);
+        }
+        
+        .alphabet-item.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        
+        .search-state {
+            display: flex;
+            align-items: center;
+        }
+        
+        .search-state .searching-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #5D5CDE;
+            margin-left: 6px;
+            animation: pulse-light 2s infinite;
+        }
+        
+        /* تنسيق لقوائم القيم الموجزة في البحث */
+        .search-values {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 0.5rem;
+        }
+        
+        .search-value-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            background-color: rgba(93, 92, 222, 0.1);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .search-value-tag:hover {
+            background-color: rgba(93, 92, 222, 0.2);
+        }
+        
+        .dark .search-value-tag {
+            background-color: rgba(93, 92, 222, 0.2);
+        }
+        
+        .dark .search-value-tag:hover {
+            background-color: rgba(93, 92, 222, 0.3);
+        }
+        
+        /* تحسين مظهر التنقل بين الصفحات */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 1rem;
+        }
+        
+        .pagination-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin: 0 2px;
+        }
+        
+        .pagination-btn:hover {
+            background-color: rgba(93, 92, 222, 0.1);
+        }
+        
+        .pagination-btn.active {
+            background-color: #5D5CDE;
+            color: white;
+        }
+        
+        .dark .pagination-btn:hover {
+            background-color: rgba(93, 92, 222, 0.2);
+        }
+        
+        /* تأثيرات حركية للبحث */
+        .search-animation-container {
+            position: relative;
+        }
+        
+        .search-pulse {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 12px;
+            height: 12px;
+            background-color: #5D5CDE;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            right: 12px;
+            transform: translateY(-50%);
+            animation: search-pulse 1.5s infinite;
+        }
+        
+        @keyframes search-pulse {
+            0% {
+                transform: translateY(-50%) scale(0.8);
+                opacity: 0.2;
+            }
+            50% {
+                transform: translateY(-50%) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-50%) scale(0.8);
+                opacity: 0.2;
+            }
+        }
+        
+        /* تأثير ظهور العناصر الجديدة */
+        .new-item-animation {
+            animation: highlight-new 1s ease-out;
+        }
+        
+        @keyframes highlight-new {
+            0% {
+                background-color: rgba(93, 92, 222, 0.2);
+            }
+            100% {
+                background-color: transparent;
+            }
+        }
     </style>
 </head>
 <body class="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200">
@@ -380,6 +725,50 @@
             <h1 class="text-3xl font-bold text-primary text-center">نظام إدارة ركوب الباص المدرسي</h1>
             <p class="text-center text-gray-600 dark:text-gray-400 mt-2">إدارة الطلاب حسب المناطق السكنية</p>
         </header>
+
+        <!-- ملخص الإحصائيات -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div class="stats-card bg-white dark:bg-gray-800 p-4 shadow-md">
+                <div class="stats-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                </div>
+                <span class="stats-value" id="total-students">0</span>
+                <span class="stats-label">إجمالي الطلاب</span>
+            </div>
+            
+            <div class="stats-card bg-white dark:bg-gray-800 p-4 shadow-md">
+                <div class="stats-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                </div>
+                <span class="stats-value" id="total-districts">0</span>
+                <span class="stats-label">المناطق السكنية</span>
+            </div>
+            
+            <div class="stats-card bg-white dark:bg-gray-800 p-4 shadow-md">
+                <div class="stats-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <span class="stats-value" id="allowed-students">0</span>
+                <span class="stats-label">المسموح لهم بالركوب</span>
+            </div>
+            
+            <div class="stats-card bg-white dark:bg-gray-800 p-4 shadow-md">
+                <div class="stats-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                    </svg>
+                </div>
+                <span class="stats-value" id="archived-count">0</span>
+                <span class="stats-label">الطلاب المؤرشفين</span>
+            </div>
+        </div>
 
         <!-- أزرار الإجراءات السريعة -->
         <div class="flex flex-wrap gap-3 justify-center mb-6">
@@ -403,6 +792,20 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                 </svg>
                 عرض الطلاب المؤرشفين
+            </button>
+            
+            <button id="print-report-btn" class="flex items-center py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                </svg>
+                طباعة تقرير
+            </button>
+            
+            <button id="view-toggle-btn" class="flex items-center py-2 px-4 bg-gray-600 hover:bg-gray-700 text-white rounded-md transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                </svg>
+                تغيير نمط العرض
             </button>
         </div>
 
@@ -534,7 +937,15 @@
 
         <!-- عرض معلومات المناطق والباصات -->
         <div class="mt-8 bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-            <h2 class="text-xl font-bold mb-4 text-primary">معلومات المناطق والباصات</h2>
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-primary">معلومات المناطق والباصات</h2>
+                <button id="print-districts-btn" class="px-3 py-1 text-sm bg-indigo-100 hover:bg-indigo-200 dark:bg-indigo-900 dark:hover:bg-indigo-800 text-indigo-700 dark:text-indigo-300 rounded-md transition flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                    </svg>
+                    طباعة التقرير
+                </button>
+            </div>
             <div class="overflow-x-auto">
                 <table class="min-w-full bg-white dark:bg-gray-800 rounded-lg">
                     <thead>
@@ -582,7 +993,7 @@
                     
                     <!-- البحث البسيط -->
                     <div id="simple-search-container" class="flex flex-col md:flex-row gap-3 w-full">
-                        <div class="w-full md:w-64 relative">
+                        <div class="w-full md:w-64 relative search-animation-container">
                             <div class="relative">
                                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                     <svg class="search-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -590,8 +1001,10 @@
                                     </svg>
                                 </div>
                                 <input type="text" id="search-student" placeholder="ابحث عن طالب..." class="w-full pl-3 pr-10 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-base">
+                                <div id="search-pulse" class="search-pulse hidden"></div>
                             </div>
                             <div id="search-suggestions" class="suggestions-dropdown hidden"></div>
+                            <div id="search-values" class="search-values hidden"></div>
                         </div>
                         
                         <select id="filter-district" class="w-full md:w-48 px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-base">
@@ -699,6 +1112,11 @@
                 </div>
             </div>
             
+            <!-- قائمة الأحرف للتنقل السريع -->
+            <div class="alphabet-nav mb-4 hidden" id="alphabet-nav">
+                <!-- سيتم إنشاؤها ديناميكيًا عبر JavaScript -->
+            </div>
+            
             <!-- عرض الطلاب كجدول (للطلاب النشطين) -->
             <div id="active-students-table-container" class="overflow-x-auto table-container">
                 <table class="min-w-full bg-white dark:bg-gray-800 rounded-lg">
@@ -742,11 +1160,21 @@
                         <!-- سيتم إضافة الطلاب هنا بواسطة JavaScript -->
                     </tbody>
                 </table>
+                
+                <!-- عناصر التنقل بين الصفحات -->
+                <div class="pagination mt-4 hidden" id="pagination-container">
+                    <!-- سيتم إنشاؤها ديناميكيًا -->
+                </div>
             </div>
             
             <!-- عرض الطلاب المؤرشفين كبطاقات -->
             <div id="archived-students-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 hidden">
                 <!-- سيتم إضافة بطاقات الطلاب المؤرشفين هنا بواسطة JavaScript -->
+            </div>
+            
+            <!-- عرض الطلاب كبطاقات (العرض الشبكي) -->
+            <div id="grid-view-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 hidden">
+                <!-- سيتم إضافة بطاقات الطلاب هنا بواسطة JavaScript -->
             </div>
             
             <div id="no-students" class="text-center py-4 text-gray-500 dark:text-gray-400 hidden">
@@ -759,7 +1187,9 @@
             
             <!-- مؤشر نتائج البحث -->
             <div id="search-results-counter" class="mt-4 text-sm text-gray-600 dark:text-gray-400 hidden">
-                تم العثور على <span id="results-count" class="font-bold">0</span> نتيجة بحث
+                <div class="search-state">
+                    <span id="results-count" class="font-bold">0</span> نتيجة بحث
+                </div>
                 
                 <button id="reset-search" class="mr-2 text-primary hover:underline">
                     <svg xmlns="http://www.w3.org/2000/svg" class="inline-block h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -837,6 +1267,45 @@
         </div>
     </div>
 
+    <!-- نموذج طباعة التقرير -->
+    <div id="print-modal" class="fixed inset-0 flex items-center justify-center bg-black/50 z-50 hidden print-modal">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <h3 class="text-xl font-bold text-primary mb-4">طباعة تقرير</h3>
+            
+            <form id="print-form" class="space-y-4">
+                <div>
+                    <label for="print-type" class="block text-sm font-medium mb-1">نوع التقرير</label>
+                    <select id="print-type" class="w-full px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-base">
+                        <option value="all-students">جميع الطلاب</option>
+                        <option value="active-students">الطلاب النشطين</option>
+                        <option value="archived-students">الطلاب المؤرشفين</option>
+                        <option value="district-students">طلاب منطقة محددة</option>
+                        <option value="districts">تقرير المناطق</option>
+                    </select>
+                </div>
+                
+                <div id="district-select-container" class="hidden">
+                    <label for="print-district" class="block text-sm font-medium mb-1">المنطقة</label>
+                    <select id="print-district" class="w-full px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-base">
+                        <!-- سيتم تعبئتها عبر JavaScript -->
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="print-include-header" class="flex items-center">
+                        <input type="checkbox" id="print-include-header" class="h-5 w-5 text-primary border-gray-300 rounded" checked>
+                        <span class="mr-2">تضمين ترويسة التقرير</span>
+                    </label>
+                </div>
+                
+                <div class="flex justify-end gap-3 mt-6">
+                    <button type="button" id="cancel-print" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-md transition">إلغاء</button>
+                    <button type="submit" class="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-md transition">إنشاء التقرير</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         // ======= إعداد Firebase =======
         // تهيئة Firebase (يجب تغيير هذه القيم بمعلومات مشروع Firebase الخاص بك)
@@ -883,12 +1352,19 @@
         let editingStudentId = null;
         let editingDistrictId = null;
         let currentView = 'active'; // 'active' أو 'archived'
+        let currentDisplayMode = 'table'; // 'table' أو 'grid'
         let currentlyArchivingStudentId = null;
         let searchMode = 'simple'; // 'simple' أو 'advanced'
         let activeSearchFilters = {}; // لحفظ معايير البحث النشطة
         let sortConfig = { field: '', direction: '' }; // حالة الفرز الحالية
         let searchSuggestions = []; // اقتراحات البحث
         let quickFilterValue = 'all'; // قيمة التصفية السريعة الحالية
+        let isSearching = false; // حالة البحث
+        let currentPage = 1; // الصفحة الحالية
+        let pageSize = 20; // عدد العناصر في الصفحة
+        
+        // نماذج الارتباط بـ jsPDF
+        const { jsPDF } = window.jspdf;
 
         // النماذج والعناصر
         const districtForm = document.getElementById('district-form');
@@ -905,6 +1381,7 @@
         const studentsList = document.getElementById('students-list');
         const archivedStudentsContainer = document.getElementById('archived-students-container');
         const activeStudentsTableContainer = document.getElementById('active-students-table-container');
+        const gridViewContainer = document.getElementById('grid-view-container');
         const districtsList = document.getElementById('districts-list');
         const noStudentsDiv = document.getElementById('no-students');
         const noDistrictsDiv = document.getElementById('no-districts');
@@ -927,6 +1404,22 @@
         const searchSuggestionsDropdown = document.getElementById('search-suggestions');
         const quickFiltersContainer = document.getElementById('quick-filters');
         const quickResultsCount = document.getElementById('quick-results-count');
+        const searchPulse = document.getElementById('search-pulse');
+        const searchValuesContainer = document.getElementById('search-values');
+        const viewToggleBtn = document.getElementById('view-toggle-btn');
+        const alphabetNav = document.getElementById('alphabet-nav');
+        const paginationContainer = document.getElementById('pagination-container');
+        
+        // عناصر التقارير
+        const printReportBtn = document.getElementById('print-report-btn');
+        const printDistrictsBtn = document.getElementById('print-districts-btn');
+        const printModal = document.getElementById('print-modal');
+        const printForm = document.getElementById('print-form');
+        const printTypeSelect = document.getElementById('print-type');
+        const printDistrictSelect = document.getElementById('print-district');
+        const printDistrictContainer = document.getElementById('district-select-container');
+        const printIncludeHeader = document.getElementById('print-include-header');
+        const cancelPrintBtn = document.getElementById('cancel-print');
 
         // عناصر نموذج المنطقة
         const supervisorNameInput = document.getElementById('supervisor-name');
@@ -973,6 +1466,108 @@
         const resetSearchBtn = document.getElementById('reset-search');
         const activeFiltersContainer = document.getElementById('active-filters');
         const sortableHeaders = document.querySelectorAll('.sortable-header');
+        
+        // عناصر الإحصائيات
+        const totalStudentsElement = document.getElementById('total-students');
+        const totalDistrictsElement = document.getElementById('total-districts');
+        const allowedStudentsElement = document.getElementById('allowed-students');
+        const archivedCountElement = document.getElementById('archived-count');
+
+        // ======= وظائف تحسين البحث =======
+        // تحويل النص إلى صيغة موحدة للبحث - محسن للبحث في اللغة العربية
+        function normalizeString(str) {
+            if (!str) return '';
+            
+            // تحويل إلى أحرف صغيرة وإزالة الفراغات الزائدة
+            const normalized = str.toLowerCase()
+                .replace(/\s+/g, ' ')
+                .trim()
+                // إزالة تشكيل الحروف العربية
+                .replace(/[\u064B-\u065F]/g, '')
+                // تطبيع أشكال الهمزات والألف
+                .replace(/[أإآا]/g, 'ا')
+                .replace(/[ىئي]/g, 'ي')
+                .replace(/[ؤ]/g, 'و')
+                .replace(/[ة]/g, 'ه');
+            
+            return normalized;
+        }
+
+        // تأخير البحث لتحسين الأداء (debounce)
+        function debounce(func, delay) {
+            let timeout;
+            
+            return function(...args) {
+                clearTimeout(timeout);
+                
+                // إظهار مؤشر البحث
+                if (args[0]?.target?.value) {
+                    searchPulse.classList.remove('hidden');
+                    isSearching = true;
+                }
+                
+                timeout = setTimeout(() => {
+                    func.apply(this, args);
+                    
+                    // إخفاء مؤشر البحث بعد انتهاء البحث
+                    setTimeout(() => {
+                        searchPulse.classList.add('hidden');
+                        isSearching = false;
+                    }, 100);
+                }, delay);
+            };
+        }
+
+        // تنفيذ البحث مع تأخير
+        const debouncedSearch = debounce(function() {
+            displayStudents();
+            
+            // تحديث اقتراحات القيم الموجودة
+            updateSearchValueSuggestions();
+        }, 300);
+
+        // تحديث اقتراحات القيم الموجودة للبحث السريع
+        function updateSearchValueSuggestions() {
+            searchValuesContainer.innerHTML = '';
+            
+            const searchQuery = searchStudentInput.value.trim();
+            if (!searchQuery || searchQuery.length < 2) {
+                searchValuesContainer.classList.add('hidden');
+                return;
+            }
+            
+            // البحث عن فئات مختلفة (الصفوف، المناطق)
+            const currentList = currentView === 'active' ? students : archivedStudents;
+            const gradesSet = new Set();
+            
+            // جمع الصفوف الفريدة
+            currentList.forEach(student => {
+                if (student.grade) gradesSet.add(student.grade);
+            });
+            
+            // إنشاء عناصر للصفوف
+            const uniqueGrades = Array.from(gradesSet);
+            if (uniqueGrades.length > 0) {
+                const matchingGrades = uniqueGrades.filter(grade => 
+                    normalizeString(grade).includes(normalizeString(searchQuery))
+                ).slice(0, 5);
+                
+                if (matchingGrades.length > 0) {
+                    matchingGrades.forEach(grade => {
+                        const tag = document.createElement('div');
+                        tag.className = 'search-value-tag';
+                        tag.textContent = `الصف: ${grade}`;
+                        tag.addEventListener('click', () => {
+                            searchStudentInput.value = grade;
+                            debouncedSearch();
+                        });
+                        searchValuesContainer.appendChild(tag);
+                    });
+                    
+                    searchValuesContainer.classList.remove('hidden');
+                }
+            }
+        }
 
         // ======= وظائف الإشعارات =======
         // إظهار إشعار
@@ -1197,6 +1792,9 @@
                 busStatus: advSearchBusSelect.value
             };
             
+            // إعادة ضبط الصفحة الحالية
+            currentPage = 1;
+            
             // تطبيق البحث المتقدم
             displayStudents();
         }
@@ -1235,6 +1833,9 @@
                 clearAdvancedSearchBtn.click();
             }
             
+            // إعادة ضبط الصفحة الحالية
+            currentPage = 1;
+            
             // إعادة عرض جميع الطلاب
             displayStudents();
         });
@@ -1254,6 +1855,9 @@
                 }
             });
             
+            // إعادة ضبط الصفحة الحالية
+            currentPage = 1;
+            
             // تطبيق التصفية
             displayStudents();
         }
@@ -1267,29 +1871,12 @@
         });
 
         // ======= وظائف البحث والتصفية =======
-        // تأخير البحث لتحسين الأداء (debounce)
-        function debounce(func, wait) {
-            let timeout;
-            return function executedFunction(...args) {
-                const later = () => {
-                    clearTimeout(timeout);
-                    func(...args);
-                };
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-            };
-        }
-
-        // تنفيذ البحث مع تأخير
-        const debouncedSearch = debounce(function() {
-            displayStudents();
-        }, 300);
-
         // البحث أثناء الكتابة
         searchStudentInput.addEventListener('input', function() {
             // إخفاء اقتراحات البحث عند حذف المحتوى
             if (this.value.trim() === '') {
                 searchSuggestionsDropdown.classList.add('hidden');
+                searchValuesContainer.classList.add('hidden');
             }
             
             debouncedSearch();
@@ -1380,6 +1967,11 @@
 
         // إنشاء اقتراحات البحث
         function generateSearchSuggestions(query) {
+            if (!query || query.length < 2) {
+                searchSuggestionsDropdown.classList.add('hidden');
+                return;
+            }
+            
             // تجميع اقتراحات فريدة
             const suggestions = [];
             const addedNames = new Set();
@@ -1388,22 +1980,23 @@
             
             // اقتراحات من الطلاب النشطين
             const currentList = currentView === 'active' ? students : archivedStudents;
+            const normalizedQuery = normalizeString(query);
             
             currentList.forEach(student => {
                 // البحث في الاسم
-                if (student.name && student.name.toLowerCase().includes(query.toLowerCase()) && !addedNames.has(student.name)) {
+                if (student.name && normalizeString(student.name).includes(normalizedQuery) && !addedNames.has(student.name)) {
                     suggestions.push({ type: 'name', value: student.name });
                     addedNames.add(student.name);
                 }
                 
                 // البحث في رقم الاسيس
-                if (student.studentId && student.studentId.toLowerCase().includes(query.toLowerCase()) && !addedIds.has(student.studentId)) {
+                if (student.studentId && normalizeString(student.studentId).includes(normalizedQuery) && !addedIds.has(student.studentId)) {
                     suggestions.push({ type: 'studentId', value: student.studentId });
                     addedIds.add(student.studentId);
                 }
                 
                 // البحث في الصف
-                if (student.grade && student.grade.toLowerCase().includes(query.toLowerCase()) && !addedGrades.has(student.grade)) {
+                if (student.grade && normalizeString(student.grade).includes(normalizedQuery) && !addedGrades.has(student.grade)) {
                     suggestions.push({ type: 'grade', value: student.grade });
                     addedGrades.add(student.grade);
                 }
@@ -1422,9 +2015,14 @@
             
             searchSuggestionsDropdown.innerHTML = '';
             
-            suggestions.forEach(suggestion => {
+            suggestions.forEach((suggestion, index) => {
                 const item = document.createElement('div');
                 item.className = 'suggestion-item';
+                
+                // إضافة فئة highlight للعنصر الأول
+                if (index === 0) {
+                    item.classList.add('highlight');
+                }
                 
                 let typeLabel = '';
                 switch(suggestion.type) {
@@ -1445,7 +2043,7 @@
                 item.addEventListener('click', function() {
                     searchStudentInput.value = suggestion.value;
                     searchSuggestionsDropdown.classList.add('hidden');
-                    displayStudents();
+                    debouncedSearch();
                 });
                 
                 searchSuggestionsDropdown.appendChild(item);
@@ -1459,7 +2057,156 @@
             if (!searchStudentInput.contains(e.target) && !searchSuggestionsDropdown.contains(e.target)) {
                 searchSuggestionsDropdown.classList.add('hidden');
             }
+            
+            if (!searchValuesContainer.contains(e.target)) {
+                searchValuesContainer.classList.add('hidden');
+            }
         });
+
+        // إنشاء قائمة التنقل بالأحرف
+        function createAlphabetNavigation() {
+            // تهيئة قائمة الأحرف العربية
+            const arabicAlphabet = ['ا', 'ب', 'ت', 'ث', 'ج', 'ح', 'خ', 'د', 'ذ', 'ر', 'ز', 'س', 'ش', 'ص', 'ض', 'ط', 'ظ', 'ع', 'غ', 'ف', 'ق', 'ك', 'ل', 'م', 'ن', 'ه', 'و', 'ي'];
+            
+            alphabetNav.innerHTML = '';
+            
+            // تحديد الطلاب الحاليين
+            const currentStudents = currentView === 'active' ? students : archivedStudents;
+            
+            // تحديد الأحرف الموجودة
+            const activeLetters = new Set();
+            currentStudents.forEach(student => {
+                if (student.name && student.name.length > 0) {
+                    const firstChar = normalizeString(student.name[0]);
+                    arabicAlphabet.forEach(letter => {
+                        if (normalizeString(letter) === firstChar) {
+                            activeLetters.add(letter);
+                        }
+                    });
+                }
+            });
+            
+            // إنشاء عناصر التنقل
+            arabicAlphabet.forEach(letter => {
+                const item = document.createElement('div');
+                item.className = 'alphabet-item';
+                item.textContent = letter;
+                
+                const isActive = activeLetters.has(letter);
+                if (!isActive) {
+                    item.classList.add('disabled');
+                } else {
+                    item.addEventListener('click', function() {
+                        // تطبيق البحث بالحرف
+                        searchStudentInput.value = letter;
+                        debouncedSearch();
+                        
+                        // تحديث الفئة النشطة
+                        document.querySelectorAll('.alphabet-item').forEach(el => {
+                            el.classList.remove('active');
+                        });
+                        this.classList.add('active');
+                    });
+                }
+                
+                alphabetNav.appendChild(item);
+            });
+            
+            // إضافة زر "الكل" لإعادة تعيين البحث
+            const allItem = document.createElement('div');
+            allItem.className = 'alphabet-item';
+            allItem.textContent = 'الكل';
+            allItem.addEventListener('click', function() {
+                // إعادة تعيين البحث
+                searchStudentInput.value = '';
+                debouncedSearch();
+                
+                // إزالة الفئة النشطة من جميع الأزرار
+                document.querySelectorAll('.alphabet-item').forEach(el => {
+                    el.classList.remove('active');
+                });
+            });
+            
+            alphabetNav.appendChild(allItem);
+            
+            // عرض قائمة التنقل إذا كان هناك عدد كافٍ من الطلاب
+            if (currentStudents.length > 20) {
+                alphabetNav.classList.remove('hidden');
+            } else {
+                alphabetNav.classList.add('hidden');
+            }
+        }
+
+        // إنشاء عناصر التنقل بين الصفحات
+        function createPagination(totalItems) {
+            paginationContainer.innerHTML = '';
+            
+            // التحقق مما إذا كان هناك حاجة للتنقل بين الصفحات
+            if (totalItems <= pageSize) {
+                paginationContainer.classList.add('hidden');
+                return;
+            }
+            
+            // حساب إجمالي عدد الصفحات
+            const totalPages = Math.ceil(totalItems / pageSize);
+            
+            // إنشاء زر الصفحة السابقة
+            const prevBtn = document.createElement('button');
+            prevBtn.className = 'pagination-btn';
+            prevBtn.innerHTML = '&laquo;';
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.addEventListener('click', function() {
+                if (currentPage > 1) {
+                    currentPage--;
+                    displayStudents(false);
+                }
+            });
+            
+            // إنشاء زر الصفحة التالية
+            const nextBtn = document.createElement('button');
+            nextBtn.className = 'pagination-btn';
+            nextBtn.innerHTML = '&raquo;';
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.addEventListener('click', function() {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    displayStudents(false);
+                }
+            });
+            
+            // إضافة زر الصفحة السابقة
+            paginationContainer.appendChild(prevBtn);
+            
+            // تحديد نطاق الصفحات للعرض
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, startPage + 4);
+            
+            if (endPage - startPage < 4) {
+                startPage = Math.max(1, endPage - 4);
+            }
+            
+            // إضافة أزرار الصفحات
+            for (let i = startPage; i <= endPage; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.className = 'pagination-btn';
+                if (i === currentPage) {
+                    pageBtn.classList.add('active');
+                }
+                pageBtn.textContent = i;
+                pageBtn.addEventListener('click', function() {
+                    currentPage = i;
+                    displayStudents(false);
+                });
+                
+                paginationContainer.appendChild(pageBtn);
+            }
+            
+            // إضافة زر الصفحة التالية
+            paginationContainer.appendChild(nextBtn);
+            
+            // إظهار عناصر التنقل
+            paginationContainer.classList.remove('hidden');
+        }
 
         // ======= وظائف قاعدة البيانات =======
         // جلب المناطق من قاعدة البيانات
@@ -1478,6 +2225,7 @@
                 }
                 updateDistrictDropdowns();
                 displayDistricts();
+                updateStatistics();
             } catch (error) {
                 console.error('حدث خطأ أثناء جلب المناطق:', error);
                 showNotification('حدث خطأ أثناء جلب المناطق', 'error');
@@ -1519,6 +2267,8 @@
                 }
                 displayStudents();
                 displayDistricts(); // تحديث عدد الطلاب في كل منطقة
+                updateStatistics();
+                createAlphabetNavigation();
             } catch (error) {
                 console.error('حدث خطأ أثناء جلب الطلاب:', error);
                 showNotification('حدث خطأ أثناء جلب الطلاب', 'error');
@@ -1677,6 +2427,7 @@
             // تحديث قوائم تصفية المناطق
             filterDistrictSelect.innerHTML = '<option value="all">جميع المناطق</option>';
             advSearchDistrictSelect.innerHTML = '<option value="all">جميع المناطق</option>';
+            printDistrictSelect.innerHTML = '';
             
             districts.forEach(district => {
                 // قائمة إضافة طالب
@@ -1696,6 +2447,12 @@
                 option3.value = district.id;
                 option3.textContent = district.name;
                 advSearchDistrictSelect.appendChild(option3);
+                
+                // قائمة طباعة التقرير
+                const option4 = document.createElement('option');
+                option4.value = district.id;
+                option4.textContent = district.name;
+                printDistrictSelect.appendChild(option4);
             });
         }
 
@@ -1781,12 +2538,16 @@
                             </span>
                         </td>
                         <td class="py-3 px-4">
-                            <div class="flex flex-wrap items-center gap-2">
-                                <button data-id="${district.id}" class="edit-district-btn text-blue-500 hover:text-blue-700">
-                                    تعديل
+                            <div class="flex flex-wrap items-center gap-2 action-btn-group">
+                                <button data-id="${district.id}" class="edit-district-btn text-blue-500 hover:text-blue-700 action-btn">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
                                 </button>
-                                <button data-id="${district.id}" class="delete-district-btn text-red-500 hover:text-red-700">
-                                    حذف
+                                <button data-id="${district.id}" class="delete-district-btn text-red-500 hover:text-red-700 action-btn">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
                                 </button>
                             </div>
                         </td>
@@ -1807,7 +2568,12 @@
         }
 
         // عرض الطلاب (النشطين أو المؤرشفين)
-        function displayStudents() {
+        function displayStudents(resetSearch = true) {
+            // إذا كان ضبط البحث مطلوبًا، إعادة تعيين الصفحة الحالية
+            if (resetSearch) {
+                currentPage = 1;
+            }
+            
             // تحديد القائمة المطلوب عرضها
             let displayList = currentView === 'active' ? students : archivedStudents;
             
@@ -1908,16 +2674,34 @@
                 displayList = sortStudents(displayList, sortConfig.field, sortConfig.direction);
             }
             
+            // عدد إجمالي العناصر
+            const totalItems = displayList.length;
+            
+            // تقسيم النتائج حسب الصفحة
+            if (totalItems > pageSize) {
+                const startIndex = (currentPage - 1) * pageSize;
+                const endIndex = startIndex + pageSize;
+                displayList = displayList.slice(startIndex, endIndex);
+            }
+            
             // تفريغ حاويات العرض
             studentsList.innerHTML = '';
             archivedStudentsContainer.innerHTML = '';
+            gridViewContainer.innerHTML = '';
             
-            // تحديد طريقة العرض حسب نوع العرض (نشط أو مؤرشف)
+            // تحديد طريقة العرض حسب نوع العرض
             if (currentView === 'active') {
-                activeStudentsTableContainer.classList.remove('hidden');
                 archivedStudentsContainer.classList.add('hidden');
+                if (currentDisplayMode === 'table') {
+                    activeStudentsTableContainer.classList.remove('hidden');
+                    gridViewContainer.classList.add('hidden');
+                } else {
+                    activeStudentsTableContainer.classList.add('hidden');
+                    gridViewContainer.classList.remove('hidden');
+                }
             } else {
                 activeStudentsTableContainer.classList.add('hidden');
+                gridViewContainer.classList.add('hidden');
                 archivedStudentsContainer.classList.remove('hidden');
             }
             
@@ -1937,13 +2721,21 @@
                 noStudentsDiv.classList.add('hidden');
                 
                 if (currentView === 'active') {
-                    // عرض الطلاب النشطين كجدول
-                    displayActiveStudents(displayList);
+                    if (currentDisplayMode === 'table') {
+                        // عرض الطلاب النشطين كجدول
+                        displayActiveStudents(displayList);
+                    } else {
+                        // عرض الطلاب النشطين كبطاقات
+                        displayActiveStudentsGrid(displayList);
+                    }
                 } else {
                     // عرض الطلاب المؤرشفين كبطاقات
                     displayArchivedStudents(displayList);
                 }
             }
+            
+            // إنشاء عناصر التنقل بين الصفحات
+            createPagination(totalItems);
         }
 
         // توليد HTML مع تمييز نص البحث
@@ -2000,7 +2792,7 @@
                             for (let i = matches.length - 1; i >= 0; i--) {
                                 const match = matches[i];
                                 htmlText = `${result.substring(match.end, lastEnd)}${htmlText}`;
-                                htmlText = `<span class="highlight-text">${result.substring(match.start, match.end)}</span>${htmlText}`;
+                                htmlText = `<span class="highlight-text search-highlight-animation">${result.substring(match.start, match.end)}</span>${htmlText}`;
                                 lastEnd = match.start;
                             }
                             
@@ -2019,16 +2811,6 @@
             return result;
         }
 
-        // تحويل النص إلى صيغة موحدة للبحث
-        function normalizeString(str) {
-            if (!str) return '';
-            
-            // تحويل إلى أحرف صغيرة وإزالة الفراغات الزائدة
-            return str.toLowerCase()
-                .replace(/\s+/g, ' ')
-                .trim();
-        }
-
         // عرض الطلاب النشطين في جدول
         function displayActiveStudents(activeList) {
             activeList.forEach((student, index) => {
@@ -2040,6 +2822,14 @@
                 // إضافة فئة الصف البديل
                 if (index % 2 === 1) {
                     row.classList.add('bg-gray-50', 'dark:bg-gray-800/50');
+                }
+                
+                // إضافة فئة إضافية للعناصر المضافة حديثًا
+                if (student._isNew) {
+                    row.classList.add('new-item-animation');
+                    setTimeout(() => {
+                        delete student._isNew;
+                    }, 1000);
                 }
                 
                 row.innerHTML = `
@@ -2054,23 +2844,23 @@
                         </span>
                     </td>
                     <td class="py-3 px-4">
-                        <div class="flex flex-wrap items-center gap-2">
-                            <button data-id="${student.id}" class="edit-btn text-blue-500 hover:text-blue-700">
+                        <div class="flex flex-wrap items-center gap-2 action-btn-group">
+                            <button data-id="${student.id}" class="edit-btn text-blue-500 hover:text-blue-700 action-btn">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                 </svg>
                             </button>
-                            <button data-id="${student.id}" class="delete-btn text-red-500 hover:text-red-700">
+                            <button data-id="${student.id}" class="delete-btn text-red-500 hover:text-red-700 action-btn">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                 </svg>
                             </button>
-                            <button data-id="${student.id}" class="toggle-bus-btn ${student.allowedBus ? 'text-red-500 hover:text-red-700' : 'text-green-500 hover:text-green-700'}" title="${student.allowedBus ? 'إلغاء السماح' : 'السماح بالركوب'}">
+                            <button data-id="${student.id}" class="toggle-bus-btn ${student.allowedBus ? 'text-red-500 hover:text-red-700' : 'text-green-500 hover:text-green-700'} action-btn" title="${student.allowedBus ? 'إلغاء السماح' : 'السماح بالركوب'}">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                             </button>
-                            <button data-id="${student.id}" class="archive-btn text-amber-500 hover:text-amber-700" title="أرشفة">
+                            <button data-id="${student.id}" class="archive-btn text-amber-500 hover:text-amber-700 action-btn" title="أرشفة">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                                 </svg>
@@ -2080,6 +2870,93 @@
                 `;
                 
                 studentsList.appendChild(row);
+            });
+            
+            // إضافة مستمعي الأحداث للأزرار
+            document.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.addEventListener('click', handleEditStudent);
+            });
+            
+            document.querySelectorAll('.archive-btn').forEach(btn => {
+                btn.addEventListener('click', handleArchiveStudent);
+            });
+            
+            document.querySelectorAll('.toggle-bus-btn').forEach(btn => {
+                btn.addEventListener('click', handleToggleBusPermission);
+            });
+            
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', handleDeleteStudent);
+            });
+        }
+
+        // عرض الطلاب النشطين كبطاقات (العرض الشبكي)
+        function displayActiveStudentsGrid(activeList) {
+            activeList.forEach(student => {
+                const districtName = districts.find(d => d.id === student.districtId)?.name || 'غير محدد';
+                
+                const card = document.createElement('div');
+                card.className = 'grid-view-card bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md';
+                card.setAttribute('data-id', student.id);
+                
+                // إضافة فئة إضافية للعناصر المضافة حديثًا
+                if (student._isNew) {
+                    card.classList.add('new-item-animation');
+                    setTimeout(() => {
+                        delete student._isNew;
+                    }, 1000);
+                }
+                
+                card.innerHTML = `
+                    <div class="flex justify-between mb-2">
+                        <h3 class="font-bold text-gray-800 dark:text-white">${highlightText(student.name, activeSearchFilters)}</h3>
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${student.allowedBus ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'}">
+                            ${student.allowedBus ? 'مسموح له' : 'غير مسموح له'}
+                        </span>
+                    </div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                        <p><span class="font-medium">الصف:</span> ${highlightText(student.grade, activeSearchFilters)}</p>
+                        <p><span class="font-medium">رقم الاسيس:</span> ${highlightText(student.studentId || '-', activeSearchFilters)}</p>
+                        <p><span class="font-medium">المنطقة:</span> ${districtName}</p>
+                        <p><span class="font-medium">رقم ولي الأمر:</span> ${highlightText(student.parentPhone || '-', activeSearchFilters)}</p>
+                    </div>
+                    <div class="flex justify-end space-x-2 space-x-reverse mt-2 action-btn-group">
+                        <button data-id="${student.id}" class="edit-btn text-blue-500 hover:text-blue-700 action-btn" title="تعديل">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                        </button>
+                        <button data-id="${student.id}" class="delete-btn text-red-500 hover:text-red-700 action-btn" title="حذف">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </button>
+                        <button data-id="${student.id}" class="toggle-bus-btn ${student.allowedBus ? 'text-red-500 hover:text-red-700' : 'text-green-500 hover:text-green-700'} action-btn" title="${student.allowedBus ? 'إلغاء السماح' : 'السماح بالركوب'}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </button>
+                        <button data-id="${student.id}" class="archive-btn text-amber-500 hover:text-amber-700 action-btn" title="أرشفة">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                            </svg>
+                        </button>
+                    </div>
+                `;
+                
+                // إمكانية تحديد البطاقة بالنقر
+                card.addEventListener('click', function(e) {
+                    // إذا كان النقر على الزر، تجاهل
+                    if (e.target.closest('button')) return;
+                    
+                    // تحديد البطاقة
+                    document.querySelectorAll('.grid-view-card').forEach(c => {
+                        c.classList.remove('selected');
+                    });
+                    this.classList.add('selected');
+                });
+                
+                gridViewContainer.appendChild(card);
             });
             
             // إضافة مستمعي الأحداث للأزرار
@@ -2124,6 +3001,14 @@
                 const card = document.createElement('div');
                 card.className = 'archived-card bg-white dark:bg-gray-800 p-5 rounded-lg shadow-md mb-4';
                 
+                // إضافة فئة إضافية للعناصر المضافة حديثًا
+                if (student._isNew) {
+                    card.classList.add('new-item-animation');
+                    setTimeout(() => {
+                        delete student._isNew;
+                    }, 1000);
+                }
+                
                 card.innerHTML = `
                     <div class="flex justify-between items-start mb-3">
                         <div>
@@ -2166,14 +3051,14 @@
                         </div>
                     ` : ''}
                     
-                    <div class="mt-4 flex justify-end space-x-2 space-x-reverse">
-                        <button data-id="${student.id}" class="unarchive-btn px-3 py-1 bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900 dark:text-green-100 dark:hover:bg-green-800 rounded-md transition">
+                    <div class="mt-4 flex justify-end space-x-2 space-x-reverse action-btn-group">
+                        <button data-id="${student.id}" class="unarchive-btn px-3 py-1 bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900 dark:text-green-100 dark:hover:bg-green-800 rounded-md transition action-btn">
                             <svg xmlns="http://www.w3.org/2000/svg" class="inline-block h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
                             </svg>
                             إلغاء الأرشفة
                         </button>
-                        <button data-id="${student.id}" class="delete-btn px-3 py-1 bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900 dark:text-red-100 dark:hover:bg-red-800 rounded-md transition">
+                        <button data-id="${student.id}" class="delete-btn px-3 py-1 bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900 dark:text-red-100 dark:hover:bg-red-800 rounded-md transition action-btn">
                             <svg xmlns="http://www.w3.org/2000/svg" class="inline-block h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                             </svg>
@@ -2207,6 +3092,17 @@
                     loadingIndicator.classList.add('hidden');
                 }, 500);
             }
+        }
+
+        // تحديث إحصائيات النظام
+        function updateStatistics() {
+            const totalStudentsCount = students.length + archivedStudents.length;
+            const allowedStudentsCount = students.filter(student => student.allowedBus).length;
+            
+            totalStudentsElement.textContent = totalStudentsCount;
+            totalDistrictsElement.textContent = districts.length;
+            allowedStudentsElement.textContent = allowedStudentsCount;
+            archivedCountElement.textContent = archivedStudents.length;
         }
 
         // ======= معالجة إضافة/تعديل المناطق =======
@@ -2350,6 +3246,9 @@
                         studentData.archiveDate = existingStudent.archiveDate;
                         studentData.archived = existingStudent.archived;
                     }
+                } else {
+                    // إضافة علامة للعناصر الجديدة
+                    studentData._isNew = true;
                 }
                 
                 const savedStudent = await saveStudent(studentData);
@@ -2374,7 +3273,10 @@
         // معالجة تعديل طالب
         function handleEditStudent(e) {
             const studentId = e.currentTarget.getAttribute('data-id');
-            const student = students.find(s => s.id === studentId);
+            
+            // تحديد مجموعة الطلاب (النشطين أو المؤرشفين)
+            const sourceList = currentView === 'active' ? students : archivedStudents;
+            const student = sourceList.find(s => s.id === studentId);
             
             if (student) {
                 editingStudentId = studentId;
@@ -2409,7 +3311,10 @@
         // معالجة تغيير حالة السماح بركوب الباص
         async function handleToggleBusPermission(e) {
             const studentId = e.currentTarget.getAttribute('data-id');
-            const student = students.find(s => s.id === studentId);
+            
+            // تحديد مجموعة الطلاب (النشطين أو المؤرشفين)
+            const sourceList = currentView === 'active' ? students : archivedStudents;
+            const student = sourceList.find(s => s.id === studentId);
             
             if (student) {
                 student.allowedBus = !student.allowedBus;
@@ -2456,6 +3361,9 @@
                     student.archiveReason = reason;
                     student.archiveDate = new Date().toISOString();
                     
+                    // إضافة علامة للعناصر المحدثة
+                    student._isNew = true;
+                    
                     const savedStudent = await saveStudent(student);
                     
                     if (savedStudent) {
@@ -2478,6 +3386,9 @@
                 student.archived = false;
                 student.archiveReason = null;
                 student.archiveDate = null;
+                
+                // إضافة علامة للعناصر المحدثة
+                student._isNew = true;
                 
                 const savedStudent = await saveStudent(student);
                 
@@ -2514,8 +3425,291 @@
                 listTitle.textContent = 'قائمة الطلاب';
             }
             
+            // إعادة إنشاء قائمة التنقل بالأحرف
+            createAlphabetNavigation();
+            
             // إعادة تطبيق البحث على القائمة الجديدة
             displayStudents();
+        });
+
+        // تبديل بين وضع العرض (جدول / شبكة)
+        viewToggleBtn.addEventListener('click', function() {
+            // تبديل وضع العرض
+            if (currentDisplayMode === 'table') {
+                currentDisplayMode = 'grid';
+                this.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                    </svg>
+                    عرض جدولي
+                `;
+            } else {
+                currentDisplayMode = 'table';
+                this.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                    </svg>
+                    عرض شبكي
+                `;
+            }
+            
+            // إعادة عرض الطلاب بوضع العرض الجديد
+            if (currentView === 'active') {
+                displayStudents();
+            }
+        });
+
+        // ======= وظائف التقارير والطباعة =======
+        // عرض نموذج الطباعة
+        printReportBtn.addEventListener('click', function() {
+            printModal.classList.add('show');
+        });
+        
+        // طباعة تقرير المناطق
+        printDistrictsBtn.addEventListener('click', function() {
+            printTypeSelect.value = 'districts';
+            printModal.classList.add('show');
+        });
+        
+        // إلغاء الطباعة
+        cancelPrintBtn.addEventListener('click', function() {
+            printModal.classList.remove('show');
+        });
+        
+        // تغيير نوع التقرير
+        printTypeSelect.addEventListener('change', function() {
+            if (this.value === 'district-students') {
+                printDistrictContainer.classList.remove('hidden');
+            } else {
+                printDistrictContainer.classList.add('hidden');
+            }
+        });
+        
+        // طباعة التقرير
+        printForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const reportType = printTypeSelect.value;
+            const includeHeader = printIncludeHeader.checked;
+            
+            try {
+                // إنشاء مستند PDF جديد
+                const pdf = new jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4',
+                    compress: true
+                });
+                
+                // إضافة دعم اللغة العربية
+                pdf.addFont('https://cdn.jsdelivr.net/npm/tajawal@0.0.1/Tajawal-Regular.ttf', 'Tajawal', 'normal');
+                pdf.setFont('Tajawal');
+                pdf.setR2L(true);
+                
+                // إضافة ترويسة التقرير
+                if (includeHeader) {
+                    pdf.setFontSize(20);
+                    pdf.text('نظام إدارة ركوب الباص المدرسي', pdf.internal.pageSize.width / 2, 15, { align: 'center' });
+                    
+                    const currentDate = new Date().toLocaleDateString('ar-SA');
+                    pdf.setFontSize(12);
+                    pdf.text(`تاريخ التقرير: ${currentDate}`, pdf.internal.pageSize.width / 2, 23, { align: 'center' });
+                    
+                    pdf.line(15, 27, pdf.internal.pageSize.width - 15, 27);
+                    pdf.setFontSize(14);
+                }
+                
+                // إعداد البيانات حسب نوع التقرير
+                let title = '';
+                let data = [];
+                let columns = [];
+                
+                if (reportType === 'districts') {
+                    // تقرير المناطق
+                    title = 'تقرير المناطق والباصات';
+                    
+                    columns = [
+                        { header: 'اسم المنطقة', dataKey: 'name' },
+                        { header: 'المشرفة', dataKey: 'supervisor' },
+                        { header: 'السائق', dataKey: 'driver' },
+                        { header: 'رقم اللوحة', dataKey: 'plate' },
+                        { header: 'عدد الطلاب/السعة', dataKey: 'capacity' }
+                    ];
+                    
+                    districts.forEach(district => {
+                        const activeDistrictStudents = students.filter(s => 
+                            s.districtId === district.id && 
+                            s.allowedBus === true
+                        ).length;
+                        
+                        data.push({
+                            name: district.name,
+                            supervisor: district.supervisorName || '-',
+                            driver: district.driverName || '-',
+                            plate: district.busPlate || '-',
+                            capacity: `${activeDistrictStudents} / ${district.busCapacity || '-'}`
+                        });
+                    });
+                } else if (reportType === 'district-students') {
+                    // تقرير طلاب منطقة محددة
+                    const districtId = printDistrictSelect.value;
+                    const district = districts.find(d => d.id === districtId);
+                    
+                    if (district) {
+                        title = `تقرير طلاب منطقة ${district.name}`;
+                        
+                        columns = [
+                            { header: 'اسم الطالب', dataKey: 'name' },
+                            { header: 'رقم الاسيس', dataKey: 'id' },
+                            { header: 'الصف', dataKey: 'grade' },
+                            { header: 'رقم ولي الأمر', dataKey: 'phone' },
+                            { header: 'حالة الباص', dataKey: 'status' }
+                        ];
+                        
+                        const districtStudents = students.filter(s => s.districtId === districtId);
+                        
+                        districtStudents.forEach(student => {
+                            data.push({
+                                name: student.name,
+                                id: student.studentId || '-',
+                                grade: student.grade,
+                                phone: student.parentPhone || '-',
+                                status: student.allowedBus ? 'مسموح له' : 'غير مسموح له'
+                            });
+                        });
+                    }
+                } else if (reportType === 'all-students') {
+                    // تقرير جميع الطلاب
+                    title = 'تقرير جميع الطلاب';
+                    
+                    columns = [
+                        { header: 'اسم الطالب', dataKey: 'name' },
+                        { header: 'الصف', dataKey: 'grade' },
+                        { header: 'المنطقة', dataKey: 'district' },
+                        { header: 'الحالة', dataKey: 'archive' },
+                        { header: 'حالة الباص', dataKey: 'status' }
+                    ];
+                    
+                    const allStudents = [...students, ...archivedStudents];
+                    
+                    allStudents.forEach(student => {
+                        const districtName = districts.find(d => d.id === student.districtId)?.name || '-';
+                        
+                        data.push({
+                            name: student.name,
+                            grade: student.grade,
+                            district: districtName,
+                            archive: student.archived ? 'مؤرشف' : 'نشط',
+                            status: student.allowedBus ? 'مسموح له' : 'غير مسموح له'
+                        });
+                    });
+                } else if (reportType === 'active-students') {
+                    // تقرير الطلاب النشطين
+                    title = 'تقرير الطلاب النشطين';
+                    
+                    columns = [
+                        { header: 'اسم الطالب', dataKey: 'name' },
+                        { header: 'رقم الاسيس', dataKey: 'id' },
+                        { header: 'الصف', dataKey: 'grade' },
+                        { header: 'المنطقة', dataKey: 'district' },
+                        { header: 'حالة الباص', dataKey: 'status' }
+                    ];
+                    
+                    students.forEach(student => {
+                        const districtName = districts.find(d => d.id === student.districtId)?.name || '-';
+                        
+                        data.push({
+                            name: student.name,
+                            id: student.studentId || '-',
+                            grade: student.grade,
+                            district: districtName,
+                            status: student.allowedBus ? 'مسموح له' : 'غير مسموح له'
+                        });
+                    });
+                } else if (reportType === 'archived-students') {
+                    // تقرير الطلاب المؤرشفين
+                    title = 'تقرير الطلاب المؤرشفين';
+                    
+                    columns = [
+                        { header: 'اسم الطالب', dataKey: 'name' },
+                        { header: 'الصف', dataKey: 'grade' },
+                        { header: 'المنطقة', dataKey: 'district' },
+                        { header: 'سبب الأرشفة', dataKey: 'reason' },
+                        { header: 'تاريخ الأرشفة', dataKey: 'date' }
+                    ];
+                    
+                    archivedStudents.forEach(student => {
+                        const districtName = districts.find(d => d.id === student.districtId)?.name || '-';
+                        
+                        let formattedDate = '';
+                        if (student.archiveDate) {
+                            try {
+                                const date = new Date(student.archiveDate);
+                                formattedDate = date.toLocaleDateString('ar-SA');
+                            } catch (e) {
+                                formattedDate = '-';
+                            }
+                        }
+                        
+                        data.push({
+                            name: student.name,
+                            grade: student.grade,
+                            district: districtName,
+                            reason: student.archiveReason || '-',
+                            date: formattedDate || '-'
+                        });
+                    });
+                }
+                
+                // إضافة عنوان التقرير
+                pdf.setFontSize(16);
+                pdf.text(title, pdf.internal.pageSize.width / 2, includeHeader ? 35 : 15, { align: 'center' });
+                
+                // إنشاء الجدول
+                pdf.autoTable({
+                    startY: includeHeader ? 40 : 20,
+                    columns: columns,
+                    body: data,
+                    headStyles: {
+                        fillColor: [93, 92, 222],
+                        textColor: [255, 255, 255],
+                        fontSize: 12
+                    },
+                    bodyStyles: {
+                        fontSize: 10
+                    },
+                    alternateRowStyles: {
+                        fillColor: [240, 240, 240]
+                    },
+                    margin: { top: 40 },
+                    didDrawPage: function (data) {
+                        // إضافة رقم الصفحة
+                        pdf.setFontSize(10);
+                        pdf.text(
+                            `صفحة ${pdf.internal.getCurrentPageInfo().pageNumber} من ${pdf.internal.getNumberOfPages()}`,
+                            pdf.internal.pageSize.width - 20,
+                            pdf.internal.pageSize.height - 10
+                        );
+                    },
+                    didParseCell: function(data) {
+                        // ضبط اتجاه الخلايا ليكون من اليمين إلى اليسار
+                        data.cell.styles.halign = 'right';
+                        data.cell.styles.valign = 'middle';
+                    }
+                });
+                
+                // حفظ الملف
+                const fileName = `${title.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
+                pdf.save(fileName);
+                
+                // إخفاء النموذج
+                printModal.classList.remove('show');
+                
+                showNotification('تم إنشاء التقرير بنجاح', 'success');
+            } catch (error) {
+                console.error('خطأ في إنشاء التقرير:', error);
+                showNotification('حدث خطأ أثناء إنشاء التقرير', 'error');
+            }
         });
 
         // ======= استيراد وتصدير Excel =======
@@ -2617,7 +3811,8 @@
                                             allowedBus: row.hasOwnProperty('مسموح بالباص') ? 
                                                 (row['مسموح بالباص'] === 'نعم' || row['مسموح بالباص'] === true) : true,
                                             archived: row.hasOwnProperty('مؤرشف') ? 
-                                                (row['مؤرشف'] === 'نعم' || row['مؤرشف'] === true) : false
+                                                (row['مؤرشف'] === 'نعم' || row['مؤرشف'] === true) : false,
+                                            _isNew: true  // إضافة علامة للعناصر الجديدة
                                         };
                                         
                                         if (studentData.archived && row.hasOwnProperty('سبب الأرشفة')) {
@@ -2731,7 +3926,11 @@
         });
 
         // ======= مستمعي الأحداث للبحث والتصفية =======
-        filterDistrictSelect.addEventListener('change', displayStudents);
+        filterDistrictSelect.addEventListener('change', function() {
+            // إعادة ضبط الصفحة الحالية
+            currentPage = 1;
+            displayStudents();
+        });
 
         // ======= التهيئة الأولية =======
         // تحميل البيانات عند تحميل الصفحة
